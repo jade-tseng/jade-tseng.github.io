@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Jade Tseng</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      background: #f9f2e9;
+      color: #000000;
+      display: flex;
+      justify-content: center;
+      padding: 160px 20px;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 800px;
+      width: 100%;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+
+    .text-section {
+      flex: 1;
+      min-width: 280px;
+    }
+
+    .nav {
+      margin-bottom: 40px;
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav a {
+      text-decoration: none;
+      color: #007acc;
+      font-weight: 500;
+      font-size: 1.1em;
+      transition: color 0.3s ease;
+    }
+
+    .nav a:hover {
+      color: #005f99;
+    }
+
+    .text-section h1 {
+      margin: 0;
+      font-size: 2.5em;
+      font-weight: 600;
+    }
+
+    .text-section p {
+      max-width: 600px;
+      text-align: left;
+      line-height: 1.6;
+      margin-top: 20px;
+    }
+
+    .image-section {
+      flex: 0 0 auto;
+    }
+
+    .image-section img {
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .photo-caption {
+        font-size: 0.9em;
+        color: #555;
+        text-align: center;
+        margin-top: 10px;
+        }
+
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column-reverse;
+        align-items: center;
+        text-align: center;
+      }
+
+      .text-section p {
+        text-align: center;
+      }
+
+      .nav {
+        justify-content: center;
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="text-section">
+      <nav class="nav">
+        <!-- LINKS TO PUBLISH WEHN READY: -->
+        <!-- <a href="/essays">Essays</a>
+        <a href="/projects">Projects</a>
+        <a href="/library">Library</a> -->
+        <!-- <a href="/projects">Projects</a> -->
+        <!-- <a href="/contact">Contact</a> -->
+      </nav>
+
+      <h1>Jade Tseng </h1>
+      <p>
+        Hi! I'm a technologist + builder in San Francisco, exploring the AI application layer.<br><br>
+    
+        👋  Feel free to reach out to: jadeyutseng (at) gmail (dot) com
+        <h2>Current interests:</h2>
+        * Observability for ML systems<br>
+        * Epistemic regime & political economy of AI<br>
+        * Computational ecologies<br><br><br>
+
+        Previously I was a <a href="https://www.linkedin.com/in/jade-tseng/?locale=en_US">software engineer (platform & infra) </a>
+        in the Netherlands.<br><br>
+
+        BS. Politics + Economics @ Leiden University<br>
+        MS. Data Science @ University of San Francisco <br><br>
+
+      </p>
+    </div>
+
+    <div class="image-section">
+      <img src="photo.jpeg" alt="Jade Tseng">
+    </div>
+  </div>
+  
+
+</body>
+</html>
