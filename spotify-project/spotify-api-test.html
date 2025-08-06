@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Spotify API Test</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+    .log { background: #f0f0f0; padding: 10px; margin: 10px 0; font-family: monospace; white-space: pre-wrap; }
+    .error { color: red; }
+    .success { color: green; }
+    .info { color: blue; }
+    button { padding: 10px 15px; margin: 5px; }
+  </style>
+</head>
+<body>
+
+<h1>🎵 Spotify API Debug Test</h1>
+
+<div class="test-section">
+  <h2>Test Spotify API Authentication</h2>
+  <button onclick="testSpotifyAuth()">Test Authentication</button>
+  <div class="log" id="authLog">Click button to test Spotify authentication...</div>
+</div>
+
+<div class="test-section">
+  <h2>Test Track Fetch</h2>
+  <button onclick="testTrackFetch()">Test Track Fetch</button>
+  <div class="log" id="trackLog">Click button to test track fetching...</div>
+</div>
+
+<div class="test-section">
+  <h2>Test Alternative Method</h2>
+  <button onclick="testAlternativeAuth()">Test Alternative Auth</button>
+  <div class="log" id="altLog">Click button to test alternative authentication method...</div>
+</div>
+
+<script>
+// Your Spotify credentials
+const CLIENT_ID = '44dd5c1f9fa4405c92e27a9fa236e124';
+const CLIENT_SECRET = '85ab203ffe05451c8e81cc66e3ef1087';
+
+function log(elementId, message, type = 'info') {
+  const element = document.getElementById(elementId);
+  const timestamp = new Date().toLocaleTimeString();
+  const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+  element.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+  console.log(`[${timestamp}] ${message}`);
+}
+
+async function testSpotifyAuth() {
+  log('authLog', '🔍 Testing Spotify authentication...');
+  
+  try {
+    log('authLog', `Using Client ID: ${CLIENT_ID}`);
+    log('authLog', `Client Secret length: ${CLIENT_SECRET.length} characters`);
+    
+    // Test the exact same request as in music-wrapper.html
+    const response = await fetch('https://accounts.spotify.com/api/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': 'Basic ' + btoa(CLIENT_ID + ':' + CLIENT_SECRET)
+      },
+      body: 'grant_type=client_credentials'
+    });
+    
+    log('authLog', `Response status: ${response.status} ${response.statusText}`);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      log('authLog', `❌ Authentication failed!`, 'error');
+      log('authLog', `Error response: ${errorText}`, 'error');
+      
+      // Check common issues
+      if (response.status === 400) {
+        log('authLog', '💡 Status 400 usually means invalid credentials or malformed request', 'info');
+      } else if (response.status === 401) {
+        log('authLog', '💡 Status 401 means unauthorized - check your Client ID and Secret', 'info');
+      }
+      return null;
+    }
+    
+    const data = await response.json();
+    log('authLog', '✅ Authentication successful!', 'success');
+    log('authLog', `Access token received (length: ${data.access_token.length})`, 'success');
+    log('authLog', `Token expires in: ${data.expires_in} seconds`, 'info');
+    
+    return data.access_token;
+    
+  } catch (error) {
+    log('authLog', `❌ Network error: ${error.message}`, 'error');
+    
+    // Check for CORS issues
+    if (error.message.includes('CORS') || error.message.includes('fetch')) {
+      log('authLog', '💡 This might be a CORS issue - Spotify API might block browser requests', 'info');
+      log('authLog', '💡 Try running this from a server environment instead of file://', 'info');
+    }
+    
+    return null;
+  }
+}
+
+async function testTrackFetch() {
+  log('trackLog', '🔍 Testing track fetch...');
+  
+  // First get a token
+  const token = await testSpotifyAuth();
+  if (!token) {
+    log('trackLog', '❌ Cannot test track fetch without valid token', 'error');
+    return;
+  }
+  
+  try {
+    // Test with Bad Bunny track ID
+    const trackId = '6Sq7ltF9Qa7SNqBwlj0tbn';
+    log('trackLog', `Testing with track ID: ${trackId}`);
+    
+    const response = await fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
+      headers: { "Authorization": "Bearer " + token }
+    });
+    
+    log('trackLog', `Track API response status: ${response.status} ${response.statusText}`);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      log('trackLog', `❌ Track fetch failed!`, 'error');
+      log('trackLog', `Error response: ${errorText}`, 'error');
+      return;
+    }
+    
+    const trackData = await response.json();
+    log('trackLog', '✅ Track fetch successful!', 'success');
+    log('trackLog', `Track: ${trackData.name}`, 'success');
+    log('trackLog', `Artist: ${trackData.artists[0].name}`, 'success');
+    log('trackLog', `Preview URL: ${trackData.preview_url || 'Not available'}`, trackData.preview_url ? 'success' : 'error');
+    
+    if (trackData.preview_url) {
+      log('trackLog', '🎵 Preview URL found - audio playback should work!', 'success');
+    } else {
+      log('trackLog', '⚠️ No preview URL - this track cannot be played', 'error');
+    }
+    
+  } catch (error) {
+    log('trackLog', `❌ Track fetch error: ${error.message}`, 'error');
+  }
+}
+
+async function testAlternativeAuth() {
+  log('altLog', '🔍 Testing alternative authentication method...');
+  
+  try {
+    // Try with explicit headers
+    const authString = btoa(CLIENT_ID + ':' + CLIENT_SECRET);
+    log('altLog', `Auth string length: ${authString.length}`);
+    
+    const response = await fetch('https://accounts.spotify.com/api/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': `Basic ${authString}`,
+        'Accept': 'application/json'
+      },
+      body: new URLSearchParams({
+        'grant_type': 'client_credentials'
+      })
+    });
+    
+    log('altLog', `Alternative method status: ${response.status}`);
+    
+    if (response.ok) {
+      const data = await response.json();
+      log('altLog', '✅ Alternative method works!', 'success');
+      log('altLog', `Token type: ${data.token_type}`, 'info');
+    } else {
+      const errorText = await response.text();
+      log('altLog', `❌ Alternative method failed: ${errorText}`, 'error');
+    }
+    
+  } catch (error) {
+    log('altLog', `❌ Alternative method error: ${error.message}`, 'error');
+  }
+}
+
+// Auto-run auth test on load
+window.onload = function() {
+  setTimeout(() => {
+    log('authLog', '🚀 Auto-running authentication test...');
+    testSpotifyAuth();
+  }, 1000);
+};
+
+</script>
+
+</body>
+</html>

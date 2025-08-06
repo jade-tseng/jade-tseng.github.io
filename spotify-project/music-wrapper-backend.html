@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Artist Bubble Chart with Spotify Preview (Backend)</title>
+  <style>
+    iframe { width: 100%; height: 90vh; border: none; }
+    audio { position: fixed; bottom: 10px; left: 10px; }
+    .status { position: fixed; top: 10px; right: 10px; padding: 10px; background: #f0f0f0; border-radius: 5px; }
+  </style>
+</head>
+<body>
+
+<!-- Status indicator -->
+<div id="status" class="status">🔄 Initializing...</div>
+
+<!-- Load the updated chart -->
+<iframe id="chartFrame" src="http://localhost:5000/music-chart.html"></iframe>
+
+<!-- Audio player -->
+<audio id="player" controls style="display:none;"></audio>
+
+<script>
+  // Backend API base URL
+  const API_BASE = 'http://localhost:5000/api';
+  
+  const iframe = document.getElementById('chartFrame');
+  const player = document.getElementById('player');
+  const status = document.getElementById('status');
+
+  // Update status display
+  function updateStatus(message, type = 'info') {
+    const emoji = type === 'success' ? '✅' : type === 'error' ? '❌' : '🔄';
+    status.textContent = `${emoji} ${message}`;
+    status.style.background = type === 'success' ? '#d4edda' : type === 'error' ? '#f8d7da' : '#f0f0f0';
+    console.log(`[${new Date().toLocaleTimeString()}] ${message}`);
+  }
+
+  // Test backend connection
+  async function testBackend() {
+    try {
+      const response = await fetch(`${API_BASE}/test`);
+      const data = await response.json();
+      
+      if (data.status === 'success') {
+        updateStatus('Backend connected', 'success');
+        return true;
+      } else {
+        updateStatus('Backend test failed', 'error');
+        return false;
+      }
+    } catch (error) {
+      updateStatus('Backend not available', 'error');
+      console.error('Backend test error:', error);
+      return false;
+    }
+  }
+
+  // Get track data from backend
+  async function getTrackData(trackId) {
+    try {
+      updateStatus(`Fetching track: ${trackId}`);
+      
+      const response = await fetch(`${API_BASE}/spotify/track/${trackId}`);
+      const data = await response.json();
+      
+      if (data.status === 'success') {
+        updateStatus(`Playing: ${data.name} by ${data.artists.join(', ')}`, 'success');
+        return data;
+      } else {
+        updateStatus(`Track fetch failed: ${data.error}`, 'error');
+        return null;
+      }
+    } catch (error) {
+      updateStatus('Network error fetching track', 'error');
+      console.error('Track fetch error:', error);
+      return null;
+    }
+  }
+
+  // Initialize the application
+  async function initialize() {
+    updateStatus('Testing backend connection...');
+    
+    const backendOk = await testBackend();
+    if (!backendOk) {
+      updateStatus('❌ Backend not running. Start with: python3 spotify_backend.py', 'error');
+      return;
+    }
+
+    // Set up iframe event handling
+    iframe.onload = function () {
+      try {
+        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+
+        // Wait until Plotly is ready inside the iframe
+        const checkPlotlyReady = setInterval(() => {
+          if (iframe.contentWindow.Plotly && iframeDoc.querySelector('#plot')) {
+            clearInterval(checkPlotlyReady);
+            updateStatus('Chart loaded, hover events ready!', 'success');
+
+            const plotDiv = iframeDoc.querySelector('#plot');
+
+            plotDiv.on('plotly_hover', async function(eventData) {
+              const trackId = eventData.points[0].customdata; 
+              if (!trackId) {
+                updateStatus('No track ID in hover data', 'error');
+                return;
+              }
+
+              console.log('🎧 Hovering over track:', trackId);
+
+              const trackData = await getTrackData(trackId);
+              if (trackData && trackData.preview_url) {
+                player.src = trackData.preview_url;
+                player.style.display = "block";
+                
+                try {
+                  await player.play();
+                  updateStatus(`♪ Playing: ${trackData.name}`, 'success');
+                } catch (playError) {
+                  updateStatus('Audio play failed (user interaction required)', 'error');
+                  console.error('Play error:', playError);
+                }
+              } else if (trackData) {
+                updateStatus(`No preview available for: ${trackData.name}`, 'error');
+              }
+            });
+
+            // Add hover out event to pause audio
+            plotDiv.on('plotly_unhover', function() {
+              if (!player.paused) {
+                player.pause();
+                updateStatus('Audio paused', 'info');
+              }
+            });
+
+          }
+        }, 500);
+        
+        // Timeout after 15 seconds
+        setTimeout(() => {
+          clearInterval(checkPlotlyReady);
+          if (!status.textContent.includes('ready')) {
+            updateStatus('Timeout waiting for chart to load', 'error');
+          }
+        }, 15000);
+        
+      } catch (err) {
+        updateStatus('Error accessing iframe content', 'error');
+        console.error("Could not inject into iframe:", err);
+      }
+    };
+
+    iframe.onerror = function() {
+      updateStatus('Failed to load chart iframe', 'error');
+    };
+  }
+
+  // Start initialization when page loads
+  window.onload = initialize;
+
+</script>
+
+</body>
+</html>
