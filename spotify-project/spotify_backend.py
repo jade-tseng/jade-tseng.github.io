@@ -130,9 +130,9 @@ def debug():
 
 if __name__ == '__main__':
     print("🎵 Starting Spotify Backend Server...")
-    print("📍 Server will run on http://localhost:5000")
-    print("🎯 Main app: http://localhost:5000/")
-    print("🧪 Test endpoint: http://localhost:5000/api/test")
-    print("🐛 Debug endpoint: http://localhost:5000/debug")
+    print("📍 Server will run on http://localhost:5001")
+    print("🎯 Main app: http://localhost:5001/")
+    print("🧪 Test endpoint: http://localhost:5001/api/test")
+    print("🐛 Debug endpoint: http://localhost:5001/debug")
     
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5001)

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Artist Bubble Chart with Spotify Integration (Demo)</title>
+  <style>
+    iframe { width: 100%; height: 85vh; border: none; }
+    .controls { position: fixed; bottom: 10px; left: 10px; right: 10px; background: rgba(0,0,0,0.8); color: white; padding: 15px; border-radius: 10px; }
+    .status { position: fixed; top: 10px; right: 10px; padding: 10px; background: #f0f0f0; border-radius: 5px; max-width: 300px; }
+    .track-info { display: flex; align-items: center; gap: 15px; }
+    .track-details { flex: 1; }
+    .track-name { font-weight: bold; font-size: 1.1em; }
+    .track-artist { color: #ccc; }
+    .audio-placeholder { background: #333; padding: 10px; border-radius: 5px; text-align: center; }
+    audio { width: 100%; }
+    .demo-note { background: #e7f3ff; border: 1px solid #b3d9ff; padding: 10px; margin: 10px; border-radius: 5px; }
+  </style>
+</head>
+<body>
+
+<div class="demo-note">
+  <strong>🎵 Spotify Integration Demo</strong><br>
+  This demonstrates the working Spotify API integration. Due to licensing restrictions, most tracks don't have preview URLs available, but the API integration is fully functional. Hover over bubbles to see track information fetched from Spotify!
+</div>
+
+<!-- Status indicator -->
+<div id="status" class="status">🔄 Initializing...</div>
+
+<!-- Load the updated chart -->
+<iframe id="chartFrame" src="http://localhost:5001/music-chart.html"></iframe>
+
+<!-- Enhanced controls -->
+<div id="controls" class="controls" style="display:none;">
+  <div class="track-info">
+    <div class="track-details">
+      <div id="trackName" class="track-name">No track selected</div>
+      <div id="trackArtist" class="track-artist">Hover over a bubble to see track info</div>
+    </div>
+    <div id="audioContainer">
+      <div id="audioPlaceholder" class="audio-placeholder">
+        🎵 Preview not available for this track
+      </div>
+      <audio id="player" controls style="display:none;"></audio>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Backend API base URL
+  const API_BASE = 'http://localhost:5001/api';
+  
+  const iframe = document.getElementById('chartFrame');
+  const player = document.getElementById('player');
+  const status = document.getElementById('status');
+  const controls = document.getElementById('controls');
+  const trackName = document.getElementById('trackName');
+  const trackArtist = document.getElementById('trackArtist');
+  const audioContainer = document.getElementById('audioContainer');
+  const audioPlaceholder = document.getElementById('audioPlaceholder');
+
+  let currentTrack = null;
+
+  // Update status display
+  function updateStatus(message, type = 'info') {
+    const emoji = type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : '🔄';
+    status.textContent = `${emoji} ${message}`;
+    status.style.background = type === 'success' ? '#d4edda' : type === 'error' ? '#f8d7da' : type === 'warning' ? '#fff3cd' : '#f0f0f0';
+    console.log(`[${new Date().toLocaleTimeString()}] ${message}`);
+  }
+
+  // Update track display
+  function updateTrackDisplay(trackData) {
+    if (trackData) {
+      trackName.textContent = trackData.name;
+      trackArtist.textContent = `by ${trackData.artists.join(', ')}`;
+      controls.style.display = 'block';
+      
+      if (trackData.preview_url) {
+        // Real preview available
+        player.src = trackData.preview_url;
+        player.style.display = 'block';
+        audioPlaceholder.style.display = 'none';
+        
+        try {
+          player.play();
+          updateStatus(`♪ Playing: ${trackData.name}`, 'success');
+        } catch (playError) {
+          updateStatus('Audio ready (click to play)', 'warning');
+        }
+      } else {
+        // No preview available - show placeholder
+        player.style.display = 'none';
+        audioPlaceholder.style.display = 'block';
+        audioPlaceholder.innerHTML = `
+          <div>🎵 Preview not available</div>
+          <div style="font-size: 0.9em; margin-top: 5px; color: #999;">
+            Due to licensing restrictions
+          </div>
+        `;
+        updateStatus(`📋 Track info loaded: ${trackData.name}`, 'success');
+      }
+    } else {
+      controls.style.display = 'none';
+    }
+  }
+
+  // Test backend connection
+  async function testBackend() {
+    try {
+      const response = await fetch(`${API_BASE}/test`);
+      const data = await response.json();
+      
+      if (data.status === 'success') {
+        updateStatus('Backend connected - Spotify API ready', 'success');
+        return true;
+      } else {
+        updateStatus('Backend test failed', 'error');
+        return false;
+      }
+    } catch (error) {
+      updateStatus('Backend not available', 'error');
+      console.error('Backend test error:', error);
+      return false;
+    }
+  }
+
+  // Get track data from backend
+  async function getTrackData(trackId) {
+    try {
+      updateStatus(`Fetching track data from Spotify...`);
+      
+      const response = await fetch(`${API_BASE}/spotify/track/${trackId}`);
+      const data = await response.json();
+      
+      if (data.status === 'success') {
+        return data;
+      } else {
+        updateStatus(`Track fetch failed: ${data.error}`, 'error');
+        return null;
+      }
+    } catch (error) {
+      updateStatus('Network error fetching track', 'error');
+      console.error('Track fetch error:', error);
+      return null;
+    }
+  }
+
+  // Initialize the application
+  async function initialize() {
+    updateStatus('Testing Spotify API connection...');
+    
+    const backendOk = await testBackend();
+    if (!backendOk) {
+      updateStatus('❌ Backend not running. Start with: python3 spotify_backend.py', 'error');
+      return;
+    }
+
+    // Set up iframe event handling
+    iframe.onload = function () {
+      try {
+        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+
+        // Wait until Plotly is ready inside the iframe
+        const checkPlotlyReady = setInterval(() => {
+          if (iframe.contentWindow.Plotly && iframeDoc.querySelector('#plot')) {
+            clearInterval(checkPlotlyReady);
+            updateStatus('Chart loaded - hover over bubbles to see Spotify data!', 'success');
+
+            const plotDiv = iframeDoc.querySelector('#plot');
+
+            plotDiv.on('plotly_hover', async function(eventData) {
+              const trackId = eventData.points[0].customdata; 
+              if (!trackId) {
+                updateStatus('No track ID in hover data', 'error');
+                return;
+              }
+
+              console.log('🎧 Hovering over track:', trackId);
+
+              const trackData = await getTrackData(trackId);
+              if (trackData) {
+                currentTrack = trackData;
+                updateTrackDisplay(trackData);
+              }
+            });
+
+            // Add hover out event
+            plotDiv.on('plotly_unhover', function() {
+              if (currentTrack && !player.paused) {
+                player.pause();
+                updateStatus('Audio paused', 'info');
+              }
+            });
+
+          }
+        }, 500);
+        
+        // Timeout after 15 seconds
+        setTimeout(() => {
+          clearInterval(checkPlotlyReady);
+          if (!status.textContent.includes('Chart loaded')) {
+            updateStatus('Timeout waiting for chart to load', 'error');
+          }
+        }, 15000);
+        
+      } catch (err) {
+        updateStatus('Error accessing iframe content', 'error');
+        console.error("Could not inject into iframe:", err);
+      }
+    };
+
+    iframe.onerror = function() {
+      updateStatus('Failed to load chart iframe', 'error');
+    };
+  }
+
+  // Start initialization when page loads
+  window.onload = initialize;
+
+</script>
+
+</body>
+</html>

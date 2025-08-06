@@ -15,14 +15,14 @@
 <div id="status" class="status">🔄 Initializing...</div>
 
 <!-- Load the updated chart -->
-<iframe id="chartFrame" src="http://localhost:5000/music-chart.html"></iframe>
+<iframe id="chartFrame" src="http://localhost:5001/music-chart.html"></iframe>
 
 <!-- Audio player -->
 <audio id="player" controls style="display:none;"></audio>
 
 <script>
   // Backend API base URL
-  const API_BASE = 'http://localhost:5000/api';
+  const API_BASE = 'http://localhost:5001/api';
   
   const iframe = document.getElementById('chartFrame');
   const player = document.getElementById('player');
