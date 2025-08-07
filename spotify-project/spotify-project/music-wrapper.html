@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Interactive Spotify Bubble Chart</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+
+<!-- Container for Plotly chart -->
+<div id="plot" style="width:90%;height:90%;"></div>
+
+<!-- Hidden audio player -->
+<audio id="player" controls style="display:none;"></audio>
+
+<script>
+  /*********************************************
+   * 1. Your chart data (copied from chart.html)
+   *    Replace your original chart variable here.
+   *********************************************/
+  var data = [{
+    x: [1, 2, 3],
+    y: [10, 15, 13],
+    mode: 'markers',
+    type: 'scatter',
+    text: ['Song A', 'Song B', 'Song C'],
+    customdata: [
+      '3n3Ppam7vgaVa1iaRUc9Lp',  // Example Spotify track IDs
+      '4uLU6hMCjMI75M1A2tKUQC',
+      '7ouMYWpwJ422jRcDASZB7P'
+    ],
+    marker: { size: [40, 60, 80] }
+  }];
+
+  var layout = {
+    title: "Spotify Preview Bubble Chart"
+  };
+
+  Plotly.newPlot('plot', data, layout);
+
+  /*********************************************
+   * 2. Spotify API Setup
+   *********************************************/
+  // ⚠️ You need a Spotify API token (Client Credentials Flow)
+  const SPOTIFY_TOKEN = "YOUR_SPOTIFY_ACCESS_TOKEN"; 
+  // Get token from https://developer.spotify.com/console/get-track/ or via API
+
+  /*********************************************
+   * 3. Hover Event → Fetch preview URL
+   *********************************************/
+  var player = document.getElementById('player');
+
+  document.getElementById('plot').on('plotly_hover', async function(eventData) {
+    let trackId = eventData.points[0].customdata;
+    if (!trackId) return;
+
+    try {
+      let res = await fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
+        headers: { "Authorization": "Bearer " + SPOTIFY_TOKEN }
+      });
+      let trackData = await res.json();
+
+      if (trackData.preview_url) {
+        player.src = trackData.preview_url;
+        player.play();
+      } else {
+        console.warn("No preview available for this track");
+      }
+    } catch (err) {
+      console.error("Error fetching track", err);
+    }
+  });
+</script>
+
+</body>
+</html>
