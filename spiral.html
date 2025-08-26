@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jade Tseng</title>
+    <title>Animated ASCII Spiral</title>
     <style>
         body {
             margin: 0;
@@ -15,7 +15,6 @@
             min-height: 100vh;
             font-family: 'Courier New', monospace;
             overflow: hidden;
-            position: relative;
         }
 
         .spiral-container {
@@ -51,52 +50,10 @@
             }
         }
 
-        .intro-text {
-            position: fixed;
-            top: 30px;
-            left: 30px;
-            color: #F0D0D7;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            line-height: 1.4;
-            z-index: 10;
-        }
-
-        .interests-text {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            color: #F0D0D7;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            line-height: 1.4;
-            text-align: left;
-            z-index: 10;
-            max-width: 400px;
-        }
-
-        .interests-text h2 {
-            margin: 0 0 10px 0;
-            font-size: 16px;
-            font-weight: bold;
-            color: #E6B3BA;
-        }
-
-        .interests-text a {
-            color: #E6B3BA;
-            text-decoration: underline;
-            transition: color 0.3s ease;
-        }
-
-        .interests-text a:hover {
-            color: #F0D0D7;
-        }
-
         .controls {
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            top: 20px;
+            left: 20px;
             color: #F0D0D7;
             font-family: 'Courier New', monospace;
             font-size: 12px;
@@ -106,14 +63,10 @@
             padding: 15px;
             border-radius: 8px;
             backdrop-filter: blur(5px);
-            z-index: 5;
-            pointer-events: none;
         }
 
-        .spiral-container:hover + .controls,
         .controls:hover {
             opacity: 1;
-            pointer-events: auto;
         }
 
         .controls button {
@@ -136,30 +89,15 @@
     </style>
 </head>
 <body>
-    <div class="intro-text">
-        <br><br><br>hi. i am jade.<br> a technologist + builder in san francisco
-    </div>
-
-    <div class="spiral-container" id="spiralContainer">
-    </div>
-
     <div class="controls">
-        <div>SPIRAL CONTROLS</div>
+        <div>ASCII SPIRAL CONTROLS</div>
         <button onclick="toggleAnimation()">Play/Pause</button>
         <button onclick="changeSpeed()">Speed</button>
         <button onclick="changeCharacter()">Character</button>
         <button onclick="togglePulse()">Pulse Effect</button>
     </div>
 
-    <div class="interests-text">
-        <h2>Current interests:</h2>
-        * AI agents for DevOps & infrastructure<br>
-        * Observability for ML systems<br>
-        <small>* Epistemic regime & political economy of AI<br>
-        * Computational ecologies</small><br><br><br>
-
-        Previously I was a <a href="https://www.linkedin.com/in/jade-tseng/?locale=en_US">software engineer (platform & infra)</a>
-        in the Netherlands.<br><br>
+    <div class="spiral-container" id="spiralContainer">
     </div>
 
     <script>
@@ -285,12 +223,14 @@
         // Initialize the spiral when page loads
         window.addEventListener('load', () => {
             spiral = new AnimatedSpiral();
-            
-            // Handle window resize
-            window.addEventListener('resize', () => {
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (spiral) {
                 spiral.spiralParams.centerX = spiral.container.offsetWidth / 2;
                 spiral.spiralParams.centerY = spiral.container.offsetHeight / 2;
-            });
+            }
         });
     </script>
 </body>
