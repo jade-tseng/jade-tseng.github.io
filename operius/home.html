@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operius - AI for DevOps</title>
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@200;300;400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #0a0f1c 0%, #1a1f2e 50%, #0f1419 100%);
+            font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .spiral-container {
+            position: relative;
+            width: 600px;
+            height: 600px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+            margin: 0 auto 10px auto;
+        }
+
+        .spiral-point {
+            position: absolute;
+            color: #fffef4;
+            font-size: 14px;
+            font-weight: bold;
+            text-shadow: 0 0 8px rgba(231, 231, 231, 0.6);
+            transition: all 0.1s ease;
+        }
+
+        .spiral-point.pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { 
+                opacity: 0.6;
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 1;
+                transform: scale(1.2);
+            }
+        }
+
+        .content {
+            position: relative;
+            z-index: 10;
+            padding: 20px;
+            text-align: center;
+            color: #fffef4;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .header {
+            margin-bottom: 20px;
+            margin-top: 40px;
+        }
+
+        .header h1 {
+            font-size: 42px;
+            font-weight: 300;
+            margin: 0;
+            color: #fffef4;
+            text-shadow: 0 0 10px rgba(255, 254, 244, 0.3);
+            font-family: 'Work Sans', sans-serif;
+        }
+
+        .description {
+            max-width: 600px;
+            margin: 0 auto 20px auto;
+            font-size: 16px;
+            line-height: 1.5;
+            opacity: 0.9;
+        }
+
+        .cta-section {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .how-it-works {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        .how-it-works h2 {
+            font-size: 36px;
+            font-weight: 300;
+            color: #fffef4;
+            margin-bottom: 60px;
+            text-shadow: 0 0 10px rgba(255, 254, 244, 0.3);
+        }
+
+        .steps-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        .step {
+            background: rgba(255, 254, 244, 0.05);
+            border: 1px solid rgba(255, 254, 244, 0.1);
+            border-radius: 12px;
+            padding: 30px 20px;
+            transition: all 0.3s ease;
+        }
+
+        .step:hover {
+            background: rgba(255, 254, 244, 0.08);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 254, 244, 0.1);
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #fffef4, #e6e6e6);
+            color: #0a0f1c;
+            border-radius: 50%;
+            font-weight: 400;
+            font-size: 18px;
+            line-height: 40px;
+            margin-bottom: 20px;
+        }
+
+        .step-icon {
+            font-size: 48px;
+            margin: 20px 0;
+            opacity: 0.8;
+        }
+
+        .step h3 {
+            color: #fffef4;
+            font-size: 18px;
+            font-weight: 300;
+            margin: 15px 0 10px 0;
+        }
+
+        .step p {
+            color: #fffef4;
+            opacity: 0.8;
+            font-size: 14px;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .how-it-works {
+                padding: 40px 20px;
+            }
+            
+            .how-it-works h2 {
+                font-size: 28px;
+            }
+            
+            .steps-container {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: rgba(230, 179, 186, 0.1);
+            color: #fffef4;
+            border: 2px solid #fffef4;
+            padding: 10px 20px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 300;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+            margin: 0 8px;
+        }
+
+        .cta-button:hover {
+            background: #fffef4;
+            color: #4E1C2C;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(230, 179, 186, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .spiral-container {
+                width: 400px;
+                height: 400px;
+            }
+            
+            .header h1 {
+                font-size: 36px;
+            }
+            
+            .description {
+                font-size: 16px;
+                padding: 0 20px;
+            }
+            
+            .cta-button {
+                display: block;
+                margin: 10px auto;
+                width: fit-content;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="header">
+            <h1>Scale with confidence</h1>
+        </div>
+
+        <div class="description">
+            Your AI co-pilot to make your infrastructure intelligent. 
+        </div>
+
+        <div class="cta-section">
+            <a href="https://calendly.com/jadeyutseng/15min" class="cta-button">Talk to a Founder</a>
+            <a href="https://github.com/jade-tseng/scale-advisor" class="cta-button">Try Open Source</a>
+        </div>
+
+        <div class="spiral-container" id="spiralContainer">
+        </div>
+    </div>
+
+    <div class="how-it-works">
+        <h2>HOW IT WORKS</h2>
+        <div class="steps-container">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-icon">🔗</div>
+                <h3>Connect to your repos, cloud, docs</h3>
+                <p>Seamlessly integrate with your existing infrastructure, repositories, and documentation to get a complete view of your environment.</p>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-icon">🤖</div>
+                <h3>Agents learn your environment, monitor any issues</h3>
+                <p>AI agents continuously learn your system patterns, monitor performance, and detect anomalies before they become critical issues.</p>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-icon">📱</div>
+                <h3>Incidents and fixes directly to your phone</h3>
+                <p>Get instant notifications about issues with suggested fixes and automated resolutions sent straight to your mobile device.</p>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-icon">🚀</div>
+                <h3>Scale confidently with Operius</h3>
+                <p>Grow your infrastructure with confidence knowing that intelligent agents are proactively managing and optimizing your systems.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class AnimatedSpiral {
+            constructor() {
+                this.container = document.getElementById('spiralContainer');
+                this.points = [];
+                this.isAnimating = true;
+                this.speed = 0.5; // Slower speed
+                this.rotation = 0;
+                this.characters = ['○'];
+                this.currentCharIndex = 0;
+                this.pulseEnabled = true;
+                this.spiralParams = {
+                    points: 120,
+                    maxRadius: 250,
+                    turns: 6,
+                    centerX: 300,
+                    centerY: 300
+                };
+                
+                this.createSpiral();
+                this.animate();
+                this.setupHoverEvents();
+            }
+
+            createSpiral() {
+                this.container.innerHTML = '';
+                this.points = [];
+
+                for (let i = 0; i < this.spiralParams.points; i++) {
+                    const t = (i / this.spiralParams.points) * this.spiralParams.turns * Math.PI * 2;
+                    const radius = (i / this.spiralParams.points) * this.spiralParams.maxRadius;
+                    
+                    const point = document.createElement('div');
+                    point.className = 'spiral-point' + (this.pulseEnabled ? ' pulse' : '');
+                    point.textContent = this.characters[this.currentCharIndex];
+                    point.style.animationDelay = `${i * 0.05}s`;
+                    
+                    this.container.appendChild(point);
+                    this.points.push({
+                        element: point,
+                        originalT: t,
+                        originalRadius: radius,
+                        index: i
+                    });
+                }
+            }
+
+            updatePositions() {
+                this.points.forEach((point, i) => {
+                    const t = point.originalT + this.rotation;
+                    const x = this.spiralParams.centerX + Math.cos(t) * point.originalRadius;
+                    const y = this.spiralParams.centerY + Math.sin(t) * point.originalRadius;
+                    
+                    // Pastel color cycling based on position
+                    const hue = (t * 30 + this.rotation * 50) % 360;
+                    const saturation = 40 + 20 * Math.sin(t + this.rotation);
+                    const lightness = 75 + 15 * Math.cos(t * 2 + this.rotation);
+                    const opacity = 0.7 + 0.3 * Math.sin(t + this.rotation * 2);
+                    
+                    point.element.style.left = x + 'px';
+                    point.element.style.top = y + 'px';
+                    point.element.style.color = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+                    point.element.style.textShadow = `0 0 8px hsla(${hue}, ${saturation}%, ${lightness}%, 0.6)`;
+                    point.element.style.opacity = opacity;
+                });
+            }
+
+            animate() {
+                if (this.isAnimating) {
+                    this.rotation += 0.01 * this.speed; // Even slower rotation
+                    this.updatePositions();
+                }
+                requestAnimationFrame(() => this.animate());
+            }
+
+            setupHoverEvents() {
+                this.container.addEventListener('mouseenter', () => {
+                    this.isAnimating = false;
+                });
+                
+                this.container.addEventListener('mouseleave', () => {
+                    this.isAnimating = true;
+                });
+            }
+        }
+
+        // Initialize the spiral when page loads
+        window.addEventListener('load', () => {
+            const spiral = new AnimatedSpiral();
+            
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                spiral.spiralParams.centerX = spiral.container.offsetWidth / 2;
+                spiral.spiralParams.centerY = spiral.container.offsetHeight / 2;
+            });
+        });
+    </script>
+</body>
+</html>
