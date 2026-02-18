@@ -25,6 +25,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            cursor: pointer;
         }
 
         .spiral-point {
@@ -62,104 +63,32 @@
             z-index: 10;
         }
 
-        .interests-text {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            color: #F0D0D7;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            line-height: 1.4;
-            text-align: left;
-            z-index: 10;
-            max-width: 400px;
-        }
-
-        .interests-text h2 {
-            margin: 0 0 10px 0;
-            font-size: 16px;
-            font-weight: bold;
-            color: #E6B3BA;
-        }
-
-        .interests-text a {
-            color: #E6B3BA;
+        .intro-text a {
+            color: #FFFFFF;
             text-decoration: underline;
             transition: color 0.3s ease;
         }
 
-        .interests-text a:hover {
-            color: #F0D0D7;
-        }
-
-        .controls {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #F0D0D7;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            background: rgba(78, 28, 44, 0.8);
-            padding: 15px;
-            border-radius: 8px;
-            backdrop-filter: blur(5px);
-            z-index: 5;
-            pointer-events: none;
-        }
-
-        .spiral-container:hover + .controls,
-        .controls:hover {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .controls button {
-            background: rgba(240, 208, 215, 0.1);
-            color: #F0D0D7;
-            border: 1px solid #E6B3BA;
-            padding: 5px 10px;
-            margin: 2px;
-            cursor: pointer;
-            font-family: 'Courier New', monospace;
-            border-radius: 4px;
-            transition: all 0.2s ease;
-        }
-
-        .controls button:hover {
-            background: #E6B3BA;
-            color: #4E1C2C;
-            transform: translateY(-1px);
+        .intro-text a:hover {
+            color: #FFFFFF;
         }
     </style>
 </head>
 <body>
     <div class="intro-text">
         <br><br><br>hi. i am jade.<br> a technologist + builder in san francisco
+        <br>
+        I'm a <a href="https://www.linkedin.com/in/jade-tseng/?locale=en_US"> software engineer</a>
+        focused on ML infra & platform engineering.
+        <br><br><br><br>
+        <a href="now.html">now</a><br>
+        <a href="library.html">library</a><br>
+        <!-- <a href="blog.html">blog</a> -->
+
     </div>
+
 
     <div class="spiral-container" id="spiralContainer">
-    </div>
-
-    <div class="controls">
-        <div>SPIRAL CONTROLS</div>
-        <button onclick="toggleAnimation()">Play/Pause</button>
-        <button onclick="changeSpeed()">Speed</button>
-        <button onclick="changeCharacter()">Character</button>
-        <button onclick="togglePulse()">Pulse Effect</button>
-    </div>
-
-    <div class="interests-text">
-        <h2>Current interests:</h2>
-        * AI agents for DevOps & infrastructure<br>
-        * Observability for ML systems<br>
-        <small>* Epistemic regime & political economy of AI<br>
-        * Computational ecologies</small><br><br><br>
-
-        Previously I was a <a href="https://www.linkedin.com/in/jade-tseng/?locale=en_US">software engineer (platform & infra)</a>
-        in the Netherlands.<br><br>
     </div>
 
     <script>
@@ -168,11 +97,11 @@
                 this.container = document.getElementById('spiralContainer');
                 this.points = [];
                 this.isAnimating = true;
-                this.speed = 1;
+                this.speed = 0.5;
                 this.rotation = 0;
                 this.characters = ['●', '○', '◉', '◎', '⬢', '⬡', '▲', '△', '■', '□', '◆', '◇'];
                 this.currentCharIndex = 0;
-                this.pulseEnabled = true;
+                this.pulseEnabled = false;
                 this.spiralParams = {
                     points: 120,
                     maxRadius: 250,
@@ -236,14 +165,6 @@
                 requestAnimationFrame(() => this.animate());
             }
 
-            toggleAnimation() {
-                this.isAnimating = !this.isAnimating;
-            }
-
-            changeSpeed() {
-                this.speed = this.speed >= 3 ? 0.5 : this.speed + 0.5;
-            }
-
             changeCharacter() {
                 this.currentCharIndex = (this.currentCharIndex + 1) % this.characters.length;
                 this.points.forEach(point => {
@@ -251,41 +172,29 @@
                 });
             }
 
-            togglePulse() {
-                this.pulseEnabled = !this.pulseEnabled;
-                this.points.forEach(point => {
-                    if (this.pulseEnabled) {
-                        point.element.classList.add('pulse');
-                    } else {
-                        point.element.classList.remove('pulse');
-                    }
-                });
-            }
-        }
-
-        // Global functions for controls
-        let spiral;
-        
-        function toggleAnimation() {
-            spiral.toggleAnimation();
-        }
-        
-        function changeSpeed() {
-            spiral.changeSpeed();
-        }
-        
-        function changeCharacter() {
-            spiral.changeCharacter();
-        }
-        
-        function togglePulse() {
-            spiral.togglePulse();
         }
 
         // Initialize the spiral when page loads
+        let spiral;
+
         window.addEventListener('load', () => {
             spiral = new AnimatedSpiral();
-            
+
+            const container = document.getElementById('spiralContainer');
+
+            // Pause on hover, resume when cursor leaves
+            container.addEventListener('mouseenter', () => {
+                spiral.isAnimating = false;
+            });
+            container.addEventListener('mouseleave', () => {
+                spiral.isAnimating = true;
+            });
+
+            // Click to change character
+            container.addEventListener('click', () => {
+                spiral.changeCharacter();
+            });
+
             // Handle window resize
             window.addEventListener('resize', () => {
                 spiral.spiralParams.centerX = spiral.container.offsetWidth / 2;

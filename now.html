@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Now – Jade Tseng</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #4E1C2C;
+            font-family: 'Courier New', monospace;
+            color: #F0D0D7;
+            min-height: 100vh;
+        }
+
+        .page {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 60px 30px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 40px;
+            color: #FFFFFF;
+            text-decoration: underline;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: #F0D0D7;
+        }
+
+        #content h1 {
+            color: #FFFFFF;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        #content h2 {
+            color: #E6B3BA;
+            font-size: 18px;
+            margin-top: 30px;
+            margin-bottom: 10px;
+        }
+
+        #content p, #content li {
+            color: #F0D0D7;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        #content em {
+            color: #E6B3BA;
+            font-style: italic;
+        }
+
+        #content a {
+            color: #FFFFFF;
+            text-decoration: underline;
+            transition: color 0.3s ease;
+        }
+
+        #content a:hover {
+            color: #F0D0D7;
+        }
+
+        #content ul {
+            padding-left: 20px;
+        }
+
+        #content li {
+            margin-bottom: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <a class="back-link" href="index.html">← back</a>
+        <div id="content">Loading...</div>
+    </div>
+
+    <script>
+        // Simple markdown to HTML converter
+        function renderMarkdown(md) {
+            let html = md
+                // Headers
+                .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+                .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+                .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+                // Bold
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                // Italic
+                .replace(/\*(.+?)\*/g, '<em>$1</em>')
+                // Links
+                .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
+                // Unordered list items
+                .replace(/^- (.+)$/gm, '<li>$1</li>')
+                // Wrap consecutive <li> in <ul>
+                .replace(/((?:<li>.*<\/li>\n?)+)/g, '<ul>$1</ul>')
+                // Paragraphs: double newlines
+                .replace(/\n\n+/g, '\n\n');
+
+            // Wrap remaining loose lines in <p> tags
+            html = html.split('\n\n').map(block => {
+                block = block.trim();
+                if (!block) return '';
+                if (block.startsWith('<h') || block.startsWith('<ul') || block.startsWith('<ol')) {
+                    return block;
+                }
+                return '<p>' + block + '</p>';
+            }).join('\n');
+
+            return html;
+        }
+
+        fetch('now.md')
+            .then(response => response.text())
+            .then(md => {
+                document.getElementById('content').innerHTML = renderMarkdown(md);
+            })
+            .catch(() => {
+                document.getElementById('content').innerHTML = '<p>Failed to load content.</p>';
+            });
+    </script>
+</body>
+</html>
+
