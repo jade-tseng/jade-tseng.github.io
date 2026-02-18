@@ -1,0 +1,138 @@
+/* ── Base ── */
+body {
+  margin: 0;
+  padding: 0;
+  background: #4E1C2C;
+  font-family: 'Courier New', monospace;
+  color: #F0D0D7;
+  min-height: 100vh;
+}
+
+a {
+  color: #FFFFFF;
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: #F0D0D7;
+}
+
+/* ── Home page ── */
+.home {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+.intro-text {
+  position: fixed;
+  top: 30px;
+  left: 30px;
+  color: #F0D0D7;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.4;
+  z-index: 10;
+}
+
+/* ── Spiral wrapper (shared across pages) ── */
+.spiral-wrapper {
+  position: fixed;
+  width: 600px;
+  height: 600px;
+  z-index: 1;
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+              top 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+              left 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.spiral-home {
+  top: calc(50vh - 300px);
+  left: calc(50vw - 300px);
+  transform: scale(1);
+  cursor: pointer;
+}
+
+.spiral-mini {
+  /* scale(0.1) → visual 60×60, anchored at center (300,300).
+     Position so visual box lands ~20px from top-right corner. */
+  top: -250px;
+  left: calc(100vw - 350px);
+  transform: scale(0.1);
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+/* ── Spiral internals ── */
+.spiral-container {
+  position: relative;
+  width: 600px;
+  height: 600px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.spiral-point {
+  position: absolute;
+  color: #E6B3BA;
+  font-size: 14px;
+  font-weight: bold;
+  text-shadow: 0 0 8px rgba(230, 179, 186, 0.6);
+  transition: all 0.1s ease;
+}
+
+/* ── Sub-pages (now, library, blog) ── */
+.page {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 60px 30px;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 40px;
+  color: #FFFFFF;
+  text-decoration: underline;
+  font-size: 14px;
+}
+
+/* ── Markdown content ── */
+.content h1 {
+  color: #FFFFFF;
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.content h2 {
+  color: #E6B3BA;
+  font-size: 18px;
+  margin-top: 30px;
+  margin-bottom: 10px;
+}
+
+.content p,
+.content li {
+  color: #F0D0D7;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.content em {
+  color: #E6B3BA;
+  font-style: italic;
+}
+
+.content ul {
+  padding-left: 20px;
+}
+
+.content li {
+  margin-bottom: 6px;
+}
+

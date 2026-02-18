@@ -1,5 +1,11 @@
-operius/
-spotify-project/
-photos/
+# dependencies
+node_modules/
 
-README.md
+# next.js
+.next/
+out/
+
+# misc
+.DS_Store
+*.pem
+.env*.local
